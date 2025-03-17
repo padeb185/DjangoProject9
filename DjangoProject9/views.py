@@ -1,49 +1,73 @@
-from django.http import HttpResponse
-from django.shortcuts import render
+# -*- coding: utf-8 -*-
 
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login as auth_login
-from django.http import HttpResponse
+from django.http import HttpResponseRedirect
+from django.views.decorators.csrf import csrf_protect
 from datetime import datetime
-from .forms import LoginForm  # Assure-toi d'importer correctement ton formulaire
+from .forms import LoginForm, StudentProfileForm, EmployeeProfileForm
 
 
 def welcome(request):
     return render(request, 'welcome.html', {'current_date_time': datetime.now()})
 
 
+@csrf_protect
 def login(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-
-        if not email or not password:
-            error = "Veuillez entrer une adresse de courriel et un mot de passe."
-            return render(request, 'login.html', {'error': error})
-
-        user = authenticate(request, username=email, password=password)
-        if user is None:
-            error = "Adresse de courriel ou mot de passe erroné."
-            return render(request, 'login.html', {'error': error})
-
-        auth_login(request, user)  # Authentification de l'utilisateur
-        return redirect('welcome')  # Redirection vers la page d'accueil
-
-    return render(request, 'login.html')  # Affichage du formulaire si pas de POST
-
-
-def login2(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = LoginForm(request.POST)
         if form.is_valid():
-            user = authenticate(request, username=form.cleaned_data['email'], password=form.cleaned_data['password'])
-            if user:
-                auth_login(request, user)
-                return redirect('welcome')
-            else:
-                form.add_error(None, "Adresse de courriel ou mot de passe erroné.")  # Ajoute une erreur globale
+            return redirect('welcome')  # Utilisation de `redirect()` plutôt que `HttpResponseRedirect`
+    else:
+        form = LoginForm()
 
-        return render(request, 'login2.html', {'form': form})  # Réaffichage avec erreurs
+    return render(request, 'login.html', {'form': form})
 
-    form = LoginForm()
+from django.shortcuts import render, redirect
+from django.views.decorators.csrf import csrf_protect
+from .forms import LoginForm
+
+@csrf_protect
+def login2(request):
+    if request.method == "POST":
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            return redirect('welcome')  # Redirection vers la page d'accueil
+    else:
+        form = LoginForm()
+
     return render(request, 'login2.html', {'form': form})
+
+
+
+@csrf_protect
+def register(request):
+    if request.method == "POST":
+        form = StudentProfileForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')
+    else:
+        form = StudentProfileForm()
+
+    return render(request, 'user_profile.html', {'form': form})
+
+
+@csrf_protect
+def register2(request):
+    studentForm = StudentProfileForm(prefix="st")
+    employeeForm = EmployeeProfileForm(prefix="em")
+
+    if request.method == "POST" and 'profileType' in request.POST:
+        if request.POST['profileType'] == 'student':
+            studentForm = StudentProfileForm(request.POST, prefix="st")
+            if studentForm.is_valid():
+                studentForm.save()
+                return redirect('login')
+        elif request.POST['profileType'] == 'employee':
+            employeeForm = EmployeeProfileForm(request.POST, prefix="em")
+            if employeeForm.is_valid():
+                employeeForm.save()
+                return redirect('login')
+
+    return render(request, 'user_profile2.html',
+                  {'studentForm': studentForm, 'employeeForm': employeeForm})

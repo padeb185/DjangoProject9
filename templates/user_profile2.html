@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Création d’un profil{% endblock %}
+
+{% block bodyId %}userProfilePage{% endblock %}
+
+{% block content %}
+<h1>Création d’un compte</h1>
+
+<!-- Sélecteur du type de profil -->
+<form>
+  <p>
+    <label for="profileType">Vous êtes :</label>
+    <select id="profileType" name="profileType" required>
+      <option value="student" {% if studentForm.is_bound %}selected{% endif %}>Étudiant</option>
+      <option value="employee" {% if employeeForm.is_bound %}selected{% endif %}>Employé</option>
+    </select>
+  </p>
+</form>
+
+<!-- Formulaire étudiant -->
+<form action="/register2" method="post" id="studentForm" style="display: none;" onsubmit="disableOtherForm('employeeForm')">
+  {% csrf_token %}
+  {{ studentForm.as_p }}
+  <p>
+    <input type="hidden" name="profileType" value="student">
+    <input type="submit" value="Créer un compte">
+  </p>
+</form>
+
+<!-- Formulaire employé -->
+<form action="/register2" method="post" id="employeeForm" style="display: none;" onsubmit="disableOtherForm('studentForm')">
+  {% csrf_token %}
+  {{ employeeForm.as_p }}
+  <p>
+    <input type="hidden" name="profileType" value="employee">
+    <input type="submit" value="Créer un compte">
+  </p>
+</form>
+
+<!-- jQuery pour la gestion des formulaires -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  function displayRightForm() {
+    let selectedType = $('#profileType').val();
+    $('#studentForm, #employeeForm').hide();
+
+    if (selectedType === 'student') {
+      $('#studentForm').show();
+    } else if (selectedType === 'employee') {
+      $('#employeeForm').show();
+    }
+  }
+
+  function disableOtherForm(formId) {
+    $('#' + formId).find(':input').prop('disabled', true);
+  }
+
+  $(document).ready(function() {
+    displayRightForm();
+    $('#profileType').change(displayRightForm);
+  });
+</script>
+
+<style>
+  #studentForm, #employeeForm {
+    display: none;
+  }
+</style>
+
+{% endblock %}

@@ -81,10 +81,15 @@ WSGI_APPLICATION = 'DjangoProject9.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'DjangoProject9',  # Nom de la base
+        'USER': 'postgres',  # Nom de l'utilisateur PostgreSQL
+        'PASSWORD': 'pierre',  # Remplacez par le mot de passe
+        'HOST': 'localhost',  # Serveur PostgreSQL
+        'PORT': '5432',  # Port par défaut de PostgreSQL
     }
 }
+
 
 
 # Password validation

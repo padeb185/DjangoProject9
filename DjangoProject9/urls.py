@@ -16,8 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin  # Correction ici
 from django.urls import path
-from .views import welcome, login, \
-    login2  # Assurez-vous que le point (.) est présent si views.py est dans le même module
+from .views import welcome, login, register, register2, login2 # Assurez-vous que le point (.) est présent si views.py est dans le même module
 
 from django.conf.urls.static import static
 from django.conf import settings
@@ -26,6 +25,9 @@ urlpatterns = [
     path('', login, name='login'),
     path('login/', login, name='login'),
     path('login2/', login2, name='login2'),
+    path('register/', register, name='register'),
+    path('register2/', register2, name='register2'),
+
     path('admin/', admin.site.urls),
     path('welcome/', welcome, name='welcome'),
 ]
